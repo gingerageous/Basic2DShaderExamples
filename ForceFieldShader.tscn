@@ -1,0 +1,323 @@
+[gd_scene load_steps=12 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform float scale = 5.0;
+
+// find distance of point to ray using area of a parallelgram functions
+float DistLine(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	return length(cross(point - camera_origin, camera_dir)) / length(camera_dir);
+}
+
+void fragment(){
+	vec2 modified_uv = UV - 0.5;
+	
+	vec3 camera_origin = vec3(0.0, 0.0, -2.0 );
+	vec3 camera_dir = vec3(modified_uv.x, modified_uv.y, -1.0) - camera_origin;
+	//vec3 target = vec3(0.0, 0.0, 3.0);
+	vec3 target = vec3(sin(TIME), 0.0, 5.0 + cos(TIME));
+	
+	float d = DistLine(camera_origin, camera_dir, target);
+	
+	float final_alpha = smoothstep(0.4, 0.5, d);
+	
+	COLOR = vec4(1.0, 1.0, 1.0, final_alpha);
+	
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/scale = 5.0
+
+[sub_resource type="Shader" id=3]
+code = "shader_type canvas_item;
+
+uniform float zoom = 1.0;
+
+// find distance of point to ray using area of a parallelgram functions
+float DistLine(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	return length(cross(point - camera_origin, camera_dir)) / length(camera_dir);
+}
+
+float DrawPoint(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	float d = DistLine(camera_origin, camera_dir, point);
+	d = smoothstep(0.3, 0.2, d);
+	return d;
+}
+
+void fragment(){
+	vec2 modified_uv = UV - 0.5;
+	
+	vec3 camera_origin = vec3(5.0 * sin(TIME) , 0.0, -5.0 * cos(TIME));
+	
+	vec3 lookat = vec3(0.5);
+	// camera forward, right and up
+	vec3 f = normalize(lookat - camera_origin);
+	vec3 r = cross(vec3(0.0, 1.0, 0.0), f);
+	vec3 u = cross(f, r);
+	// center of screen
+	vec3 c = camera_origin + f * zoom;
+	vec3 i = c + modified_uv.x * r + modified_uv.y * u;
+	
+	
+	vec3 camera_dir = i - camera_origin;
+	//vec3 camera_dir = vec3(modified_uv.x, modified_uv.y, -14.0 + zoom) - camera_origin;
+	//vec3 target = vec3(0.0, 0.0, 3.0);
+	vec3 target = vec3(0.0);
+	
+	//float d = DistLine(camera_origin, camera_dir, target);
+	
+	
+	float final_alpha = DrawPoint(camera_origin, camera_dir, target);
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(1.0 , 1.0, 0.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(1.0 , 0.0, 1.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(1.0 , 0.0, 0.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(0.0 , 1.0, 1.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(1.0 , 1.0, 1.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(0.0 , 0.0, 1.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(0.0 , 1.0, 0.0));
+	
+	
+	COLOR = vec4(1.0, 1.0, 1.0, final_alpha);
+	
+}"
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 3 )
+shader_param/zoom = 1.0
+
+[sub_resource type="Shader" id=5]
+code = "shader_type canvas_item;
+
+uniform float zoom = 1.0;
+
+// find distance of point to ray using area of a parallelgram functions
+float DistLine(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	return length(cross(point - camera_origin, camera_dir)) / length(camera_dir);
+}
+
+float DrawPoint(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	float d = DistLine(camera_origin, camera_dir, point);
+	d = smoothstep(0.1, 0.025, fract(clamp(d, 0.0, 5.0)));
+	return d;
+}
+
+void fragment(){
+	vec2 modified_uv = UV - 0.5;
+	
+	vec3 camera_origin = vec3(5.0 * sin(TIME) , 3.0, -5.0 * cos(TIME));
+	
+	vec3 lookat = vec3(0.5);
+	// camera forward, right and up
+	vec3 f = normalize(lookat - camera_origin);
+	vec3 r = cross(vec3(0.0, 1.0, 0.0), f);
+	vec3 u = cross(f, r);
+	// center of screen
+	vec3 c = camera_origin + f * zoom;
+	vec3 i = c + modified_uv.x * r + modified_uv.y * u;
+	
+	
+	vec3 camera_dir = i - camera_origin;
+	//vec3 camera_dir = vec3(modified_uv.x, modified_uv.y, -14.0 + zoom) - camera_origin;
+	//vec3 target = vec3(0.0, 0.0, 3.0);
+	vec3 target = vec3(0.0);
+	
+	//float d = DistLine(camera_origin, camera_dir, target);
+	
+	
+	float final_alpha = DrawPoint(camera_origin, camera_dir, target);
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(1.0 , 1.0, 0.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(1.0 , 0.0, 1.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(1.0 , 0.0, 0.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(0.0 , 1.0, 1.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(1.0 , 1.0, 1.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(0.0 , 0.0, 1.0));
+	final_alpha += DrawPoint(camera_origin, camera_dir, target + vec3(0.0 , 1.0, 0.0));
+	
+	
+	COLOR = vec4(1.0, 1.0, 1.0, final_alpha);
+	
+}"
+
+[sub_resource type="ShaderMaterial" id=6]
+shader = SubResource( 5 )
+shader_param/zoom = 1.0
+
+[sub_resource type="Shader" id=7]
+code = "shader_type canvas_item;
+
+uniform float zoom = 5.0;
+
+// find distance of point to ray using area of a parallelgram functions
+float DistLine(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	return length(cross(point - camera_origin, camera_dir)) / length(camera_dir);
+}
+
+float DrawPoint(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	float d = DistLine(camera_origin, camera_dir, point);
+	d = smoothstep(0.4, 0.3, d);
+	return d;
+}
+
+void fragment(){
+	vec2 modified_uv = UV - 0.5;
+	
+	vec3 camera_origin = vec3(1.0);
+	//vec3 camera_origin = vec3(5.0 * sin(TIME) , 0.0, -5.0 * cos(TIME));
+	
+	vec3 lookat = vec3(0.5);
+	// camera forward, right and up
+	vec3 f = normalize(lookat - camera_origin);
+	vec3 r = cross(vec3(0.0, 1.0, 0.0), f);
+	vec3 u = cross(f, r);
+	// center of screen
+	vec3 c = camera_origin + f * zoom;
+	vec3 i = c + modified_uv.x * r + modified_uv.y * u;
+	
+	
+	vec3 camera_dir = i - camera_origin;
+	//vec3 camera_dir = vec3(modified_uv.x, modified_uv.y, -14.0 + zoom) - camera_origin;
+	//vec3 target = vec3(0.0, 0.0, 3.0);
+	vec3 target = vec3(0.0);
+	
+	//float d = DistLine(camera_origin, camera_dir, target);
+	
+	// just the lines
+	//float final_alpha = DrawPoint(camera_origin, camera_dir, target) * fract(i.y * 25.0);
+	
+	float final_alpha = DrawPoint(camera_origin, camera_dir, target) * abs(fract(i.y * 25.0) - 0.5) * 1.5;
+	
+
+	
+	COLOR = vec4(1.0, 1.0, 1.0, final_alpha);
+	
+}"
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = SubResource( 7 )
+shader_param/zoom = 1.0
+
+[sub_resource type="Shader" id=9]
+code = "shader_type canvas_item;
+
+uniform float zoom = 5.0;
+uniform vec4 shield_tint : hint_color;
+
+// rotate uv for color
+vec2 rotation_matrix(vec2 uv, float rot){
+	mat2 m = mat2(vec2(sin(rot), -cos(rot)),
+				vec2(cos(rot), sin(rot)));
+				
+	uv = uv * m;
+	return uv;
+}
+	
+// find distance of point to ray using area of a parallelgram functions
+float DistLine(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	return length(cross(point - camera_origin, camera_dir)) / length(camera_dir);
+}
+
+float DrawPoint(vec3 camera_origin, vec3 camera_dir, vec3 point){
+	float d = DistLine(camera_origin, camera_dir, point);
+	d = smoothstep(0.4, 0.3, d);
+	return d;
+}
+
+void fragment(){
+	vec2 modified_uv = UV - 0.5;
+	
+	vec3 camera_origin = vec3(3.0, 3.0, 3.0);
+	//vec3 camera_origin = vec3(5.0 * sin(TIME) , 0.0, -5.0 * cos(TIME));
+	
+	vec3 lookat = vec3(0.0);
+	// camera forward, right and up
+	vec3 f = normalize(lookat - camera_origin);
+	vec3 r = cross(vec3(0.0, 1.0, 0.0), f);
+	vec3 u = cross(f, r);
+	// center of screen
+	vec3 c = camera_origin + f * zoom;
+	vec3 i = c + modified_uv.x * r + modified_uv.y * u;
+	
+	
+	vec3 camera_dir = i - camera_origin;
+	//vec3 camera_dir = vec3(modified_uv.x, modified_uv.y, -14.0 + zoom) - camera_origin;
+	//vec3 target = vec3(0.0, 0.0, 3.0);
+	vec3 target = vec3(0.0);
+	
+	//float d = DistLine(camera_origin, camera_dir, target);
+	
+	// just the lines
+	float final_alpha = DrawPoint(camera_origin, camera_dir, target)  * fract((i.y + mod(TIME / 50.0, 1.0))  * 15.0) 
+																* fract((i.x + mod(TIME / 50.0, 1.0)) * 15.0)
+																* fract((i.z + mod(TIME / 50.0, 1.0)) * 15.0);
+	
+//		tapered in and out
+//	float final_alpha = DrawPoint(camera_origin, camera_dir, target) * abs(fract((i.y + mod(TIME / 50.0, 1.0))  * 15.0)  - 0.5) * 2.0
+//															* abs(fract((i.x + mod(TIME / 50.0, 1.0))  * 25.0)  - 0.5) * 2.0
+//															* abs(fract((i.z + mod(TIME / 50.0, 1.0))  * 25.0)  - 0.5) * 2.0;
+	// add smoothstep
+//	float final_alpha = DrawPoint(camera_origin, camera_dir, target) * smoothstep(abs(fract((i.y + mod(TIME / 50.0, 1.0))  * 25.0)  - 0.5) * 2.0, 0.5, 0.8)
+//														* smoothstep(abs(fract((i.x + mod(TIME / 50.0, 1.0))  * 25.0)  - 0.5) * 2.0, 0.9, 0.8)
+//														* smoothstep(abs(fract((i.z + mod(TIME / 50.0, 1.0))  * 25.0)  - 0.5) * 2.0, 0.5, 0.8); 
+
+	// make tint rotate around 
+	float rotating_color = mix(rotation_matrix(modified_uv, 2.0 * TIME).x, shield_tint.x, 0.5);
+	
+	// mix in background
+	vec2 refraction = vec2((UV - 0.5));
+	
+	vec4 background = textureLod(SCREEN_TEXTURE, SCREEN_UV + refraction, 0.0);
+	vec3 shield_color = vec3(rotating_color, rotating_color, 1.0);
+	
+	vec3 final_color = background.rgb * 2.0 + shield_color;
+	//vec3 final_color = vec3(mix(background.rgb, shield_color, 0.5));
+	
+	
+	COLOR = vec4(final_color, final_alpha);
+	
+}"
+
+[sub_resource type="ShaderMaterial" id=10]
+shader = SubResource( 9 )
+shader_param/zoom = 5.0
+shader_param/shield_tint = Color( 0.996078, 0.0117647, 0.0117647, 1 )
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Background" type="Sprite" parent="."]
+position = Vector2( 419.766, 424.19 )
+texture = ExtResource( 1 )
+
+[node name="Simple3D" type="Sprite" parent="."]
+material = SubResource( 2 )
+position = Vector2( 307.626, 192.333 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 1 )
+
+[node name="3DMoreDots" type="Sprite" parent="."]
+material = SubResource( 4 )
+position = Vector2( 543.581, 191.014 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 1 )
+
+[node name="Added fract to draw point" type="Sprite" parent="."]
+material = SubResource( 6 )
+position = Vector2( 182.59, 800.513 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 1 )
+offset = Vector2( 190.264, -203.001 )
+
+[node name="Horizontal grid" type="Sprite" parent="."]
+material = SubResource( 8 )
+position = Vector2( 97.5018, 415.785 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 1 )
+
+[node name="Force Field" type="Sprite" parent="."]
+material = SubResource( 10 )
+position = Vector2( 427.914, 425.308 )
+scale = Vector2( 3, 2.03265 )
+texture = ExtResource( 1 )

@@ -1,0 +1,85 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform float scale = 10.0;
+
+void fragment(){
+	vec2 modified_uv = vec2(fract(UV * scale)) - 0.5;
+	float edge = smoothstep(0.40, 0.5, abs(modified_uv.x)) + smoothstep(0.40, 0.5, abs(modified_uv.y));
+	
+	COLOR = vec4(edge);
+	
+}
+
+"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/scale = 10.0
+
+[sub_resource type="Shader" id=3]
+code = "shader_type canvas_item;
+
+uniform float scale = 10.0;
+
+void fragment(){
+	vec2 modified_uv = vec2(fract(UV * scale)) - 0.5;
+	vec2 grid_id = floor(UV * scale);
+	
+	// change red and green channels by the grid ID
+	COLOR = vec4(grid_id / scale, vec2(0.0, 1.0));
+}"
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 3 )
+shader_param/scale = 10.0
+
+[sub_resource type="Shader" id=5]
+code = "shader_type canvas_item;
+
+uniform float scale = 10.0;
+
+// You can draw shapes in each grid spot
+
+float make_circle(vec2 pos, float r){
+	return length(pos) - r;
+}
+
+void fragment(){
+	vec2 modified_uv = vec2(fract(UV * scale)) - 0.5;
+	vec2 grid_id = floor(UV * scale);
+	// moves dots based on grid_id otherwise the circles all center in each grid square
+	vec2 offset = grid_id - scale / 2.0 + 0.5;
+	float mask = make_circle(modified_uv - offset / scale, 0.2); 
+	
+	// change red and green channels by the grid ID
+	COLOR = vec4(vec3(1.0), smoothstep(mask, mask + 0.01, 0.0));
+}"
+
+[sub_resource type="ShaderMaterial" id=6]
+shader = SubResource( 5 )
+shader_param/scale = 10.0
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Grid" type="Sprite" parent="."]
+material = SubResource( 2 )
+position = Vector2( 141.506, 120.681 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 1 )
+
+[node name="ColorGrid" type="Sprite" parent="."]
+material = SubResource( 4 )
+position = Vector2( 363.539, 121.114 )
+scale = Vector2( 3, 3 )
+texture = ExtResource( 1 )
+
+[node name="OffsetDotsInGrid" type="Sprite" parent="."]
+material = SubResource( 6 )
+position = Vector2( 581.518, 121.268 )
+scale = Vector2( 2.88659, 3 )
+texture = ExtResource( 1 )
